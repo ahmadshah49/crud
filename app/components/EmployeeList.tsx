@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
 interface Employee {
   id: string;
@@ -11,10 +11,34 @@ interface Employee {
 interface EmployeeListProps {
   employees: Employee[];
 }
-const onDelete = () => {
-  console.log("Data Deleted");
-};
+
 const EmployeeList: React.FC<EmployeeListProps> = ({ employees }) => {
+  const [loading, setLoading] = useState(false);
+  const onDelete = async (id: string) => {
+    setLoading(true);
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      const raw = JSON.stringify({
+        id,
+      });
+
+      const requestOptions: RequestInit = {
+        method: "DELETE",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      await fetch("http://localhost:3000/api/employee", requestOptions);
+      alert("Employee Deleted!");
+    } catch (error) {
+      console.log("error while deleting", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <table className="min-w-full bg-white mt-4">
       <thead>
@@ -56,10 +80,10 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees }) => {
                 Update
               </button>
               <button
-                onClick={onDelete}
+                onClick={() => onDelete(employee.id)}
                 className="py-2 px-4 bg-red-400 rounded-lg font-bold"
               >
-                Delete
+                {loading ? "loading..." : "Delete"}
               </button>
             </td>
           </tr>

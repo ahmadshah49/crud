@@ -8,12 +8,24 @@ const CreateEmployee: React.FC<EmployeeProps> = ({ OnClose }) => {
   const [empolyeeLastName, setEmpolyeeLastName] = useState("");
   const [empolyeeEmailID, setEmpolyeeEmailID] = useState("");
   const [loading, setLoading] = useState(false);
-  async function HandleOnClick() {
+  const [error, setError] = useState("");
+
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+  async function HandleOnClick(e: React.FormEvent) {
+    e.preventDefault();
     try {
       if (!empolyeeFirstName || !empolyeeLastName || !empolyeeEmailID) {
-        alert("Please fill in all fields.");
+        setError("Please fill in all fields.");
         return;
       }
+      if (!validateEmail(empolyeeEmailID)) {
+        setError("Invalid email address.");
+        return;
+      }
+      setError("");
       setLoading(true);
       var myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
@@ -42,6 +54,7 @@ const CreateEmployee: React.FC<EmployeeProps> = ({ OnClose }) => {
       OnClose();
     } catch (error) {
       console.log("error", error);
+      setLoading(false);
     }
   }
 
@@ -72,47 +85,54 @@ const CreateEmployee: React.FC<EmployeeProps> = ({ OnClose }) => {
         <h1 className="text-center text-xl  text-red-500 font-bold leading-5">
           Create Employee
         </h1>
-        <div className="mt-4 flex flex-col mx-4">
-          <label className="mb-1">Employee First Name:</label>
-          <input
-            type="text"
-            value={empolyeeFirstName}
-            onChange={(e) => setEmpolyeeFirstName(e.target.value)}
-            className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
-          />
-        </div>
-        <div className="mt-4 flex flex-col mx-4 ">
-          <label className="mb-1">Employee Last Name:</label>
-          <input
-            type="text"
-            value={empolyeeLastName}
-            onChange={(e) => setEmpolyeeLastName(e.target.value)}
-            className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
-          />
-        </div>
-        <div className="mt-4 flex flex-col mx-4 ">
-          <label className="mb-1">Employee Email ID:</label>
-          <input
-            type="email"
-            value={empolyeeEmailID}
-            onChange={(e) => setEmpolyeeEmailID(e.target.value)}
-            className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
-          />
-        </div>
-        <div className="flex justify-center items-center mt-4 gap-8 py-4">
-          <button
-            onClick={HandleOnClick}
-            className="py-2 px-4 font-bold rounded-md bg-green-400"
-          >
-            {loading ? "loading..." : "Add"}
-          </button>
-          <button
-            onClick={OnClose}
-            className="py-2 px-4 font-bold rounded-md bg-red-400"
-          >
-            Cancel
-          </button>
-        </div>
+        <form onSubmit={HandleOnClick}>
+          <div className="mt-4 flex flex-col mx-4">
+            <label className="mb-1">Employee First Name:</label>
+            <input
+              type="text"
+              value={empolyeeFirstName}
+              onChange={(e) => setEmpolyeeFirstName(e.target.value)}
+              className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
+            />
+          </div>
+          <div className="mt-4 flex flex-col mx-4 ">
+            <label className="mb-1">Employee Last Name:</label>
+            <input
+              type="text"
+              value={empolyeeLastName}
+              onChange={(e) => setEmpolyeeLastName(e.target.value)}
+              className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
+            />
+          </div>
+          <div className="mt-4 flex flex-col mx-4 ">
+            <label className="mb-1">Employee Email ID:</label>
+            <input
+              type="email"
+              value={empolyeeEmailID}
+              onChange={(e) => setEmpolyeeEmailID(e.target.value)}
+              className="focus:ring-1 ring-1 ring-slate-500  focus:ring-red-500 rounded-md outline-none"
+              autoComplete="email"
+            />
+          </div>
+          {error && (
+            <p className="text-red-500 text-base italic mx-4 mt-2">{error}</p>
+          )}
+
+          <div className="flex justify-center items-center mt-4 gap-8 py-4">
+            <button
+              type="submit"
+              className="py-2 px-4 font-bold rounded-md bg-green-400"
+            >
+              {loading ? "loading..." : "Add"}
+            </button>
+            <button
+              onClick={OnClose}
+              className="py-2 px-4 font-bold rounded-md bg-red-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
